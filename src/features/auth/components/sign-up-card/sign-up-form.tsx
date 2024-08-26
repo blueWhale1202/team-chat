@@ -31,6 +31,13 @@ const formSchema = z
 
 export type FormValues = z.infer<typeof formSchema>;
 
+const defaultValues: FormValues = {
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+};
+
 type Props = {
     disabled: boolean;
     onSubmit: (values: FormValues) => void;
@@ -42,12 +49,7 @@ export const SignUpForm = ({ disabled = false, onSubmit }: Props) => {
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
-        defaultValues: {
-            name: "",
-            email: "",
-            password: "",
-            confirmPassword: "",
-        },
+        defaultValues,
     });
 
     return (

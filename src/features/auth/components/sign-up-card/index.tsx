@@ -1,5 +1,7 @@
 "use client";
 
+import { SignInFlow } from "../../types";
+
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -9,13 +11,14 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 
-import { useAuthActions } from "@convex-dev/auth/react";
 import { TriangleAlert } from "lucide-react";
 import { useState } from "react";
 import { FaGithub } from "react-icons/fa6";
 import { FcGoogle } from "react-icons/fc";
-import { SignInFlow } from "../../types";
+
 import { FormValues, SignUpForm } from "./sign-up-form";
+
+import { useAuthActions } from "@convex-dev/auth/react";
 
 type Props = {
     setState: (state: SignInFlow) => void;
