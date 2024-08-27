@@ -2,12 +2,11 @@
 
 import { useEffect } from "react";
 
-import { UserButton } from "@/features/auth/components/user-button";
-
-import { useCreateWorkspaceModal } from "@/features/workspaces/store/use-create-workspace-modal";
+import { useCreateWorkspaceModal } from "@/features/workspaces/store/use-create-modal";
 
 import { convexQuery } from "@convex-dev/react-query";
 import { useQuery } from "@tanstack/react-query";
+import { Loader } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { api } from "../../convex/_generated/api";
 
@@ -30,13 +29,12 @@ export default function Home() {
             router.replace(`/workspaces/${workspaceId}`);
         } else if (!open) {
             setOpen(true);
-            console.log("open dialog create workspace");
         }
     }, [workspaceId, isLoading, open, setOpen, router]);
 
     return (
-        <div>
-            <UserButton />
+        <div className="h-full flex items-center justify-center">
+            <Loader className="size-10 animate-spin text-muted-foreground" />
         </div>
     );
 }

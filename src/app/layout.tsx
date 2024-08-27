@@ -1,4 +1,5 @@
 import { ConvexClientProvider } from "@/providers/convex-client-provider";
+import { JotaiProvider } from "@/providers/jotail-provider";
 import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";
 
 import { Modals } from "@/components/modals";
@@ -25,9 +26,11 @@ export default function RootLayout({
             <html lang="en">
                 <body className={inter.className}>
                     <ConvexClientProvider>
-                        <Modals />
-                        <Toaster richColors theme="light" />
-                        {children}
+                        <JotaiProvider>
+                            <Modals />
+                            <Toaster richColors theme="light" />
+                            {children}
+                        </JotaiProvider>
                     </ConvexClientProvider>
                 </body>
             </html>

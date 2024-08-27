@@ -19,7 +19,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { api } from "../../../../../convex/_generated/api";
-import { useCreateWorkspaceModal } from "../../store/use-create-workspace-modal";
+import { useCreateWorkspaceModal } from "../../store/use-create-modal";
 
 const formSchema = z.object({
     name: z.string().min(1),

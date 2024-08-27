@@ -10,7 +10,7 @@ import {
 
 import { CreateWorkspaceForm } from "./create-workspace-form";
 
-import { useCreateWorkspaceModal } from "../../store/use-create-workspace-modal";
+import { useCreateWorkspaceModal } from "../../store/use-create-modal";
 
 export const CreateWorkspaceModal = () => {
     const [open, setOpen] = useCreateWorkspaceModal();

@@ -87,3 +87,73 @@ export const create = mutation({
         return workspaceId;
     },
 });
+
+export const update = mutation({
+    args: {
+        id: v.id("workspaces"),
+        name: v.string(),
+    },
+    handler: async (ctx, { id, name }) => {
+        const userId = await getAuthUserId(ctx);
+
+        if (!userId) {
+            throw new ConvexError("Unauthorized");
+        }
+
+        const member = await ctx.db
+            .query("members")
+            .withIndex("by_user_id_workspace_id", (q) =>
+                q.eq("userId", userId).eq("workspaceId", id)
+            )
+            .unique();
+
+        if (!member || member.role !== "admin") {
+            throw new ConvexError("Unauthorized");
+        }
+
+        await ctx.db.patch(id, { name });
+
+        return id;
+    },
+});
+
+export const remove = mutation({
+    args: {
+        id: v.id("workspaces"),
+    },
+    handler: async (ctx, { id }) => {
+        const userId = await getAuthUserId(ctx);
+
+        if (!userId) {
+            throw new ConvexError("Unauthorized");
+        }
+
+        const member = await ctx.db
+            .query("members")
+            .withIndex("by_user_id_workspace_id", (q) =>
+                q.eq("userId", userId).eq("workspaceId", id)
+            )
+            .unique();
+
+        if (!member || member.role !== "admin") {
+            throw new ConvexError("Unauthorized");
+        }
+
+        const [members] = await Promise.all([
+            ctx.db
+                .query("members")
+                .withIndex("by_workspace_id", (q) => q.eq("workspaceId", id))
+                .collect(),
+        ]);
+
+        console.log("🚀 ~ handler: ~ members:", members);
+
+        for (const member of members) {
+            await ctx.db.delete(member._id);
+        }
+
+        await ctx.db.delete(id);
+
+        return id;
+    },
+});

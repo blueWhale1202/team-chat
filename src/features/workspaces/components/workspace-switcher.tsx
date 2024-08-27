@@ -18,7 +18,7 @@ import { Loader, Plus, TriangleAlert } from "lucide-react";
 
 import { useGetCurrentWorkspace } from "../hooks/use-get-workspace";
 import { useGetWorkspaces } from "../hooks/use-get-workspaces";
-import { useCreateWorkspaceModal } from "../store/use-create-workspace-modal";
+import { useCreateWorkspaceModal } from "../store/use-create-modal";
 
 export const WorkspaceSwitcher = () => {
     const {
