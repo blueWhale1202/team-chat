@@ -23,10 +23,6 @@ import { useQuery } from "@tanstack/react-query";
 export const UserButton = () => {
     const { signOut } = useAuthActions();
 
-    // const { data, isLoading } = useCurrentUser();
-
-    // const { data: test, isPending, error } = useQuery(convexQuery(api.user.current, {}));
-
     const { isPending, data } = useQuery(convexQuery(api.user.current, {}));
 
     if (isPending) {
@@ -55,7 +51,7 @@ export const UserButton = () => {
                     </Avatar>
                 </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="center" side="right" className="w-60">
+            <DropdownMenuContent className="w-60" side="right" align="end">
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => void signOut()}>
