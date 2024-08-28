@@ -4,7 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { Button } from "@/components/ui/button";
 import {
     Form,
     FormControl,
@@ -27,19 +26,24 @@ const defaultValues: FormValues = {
 };
 
 type Props = {
-    disabled?: boolean;
+    id: string;
+    initialData?: FormValues | null;
     onSubmit: (values: FormValues) => void;
 };
 
-export const CreateChannelForm = ({ disabled, onSubmit }: Props) => {
+export const EditWorkspaceForm = ({ id, initialData, onSubmit }: Props) => {
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
-        defaultValues: defaultValues,
+        defaultValues: initialData ?? defaultValues,
     });
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form
+                id={id}
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-4"
+            >
                 <FormField
                     control={form.control}
                     name="name"
@@ -57,17 +61,10 @@ export const CreateChannelForm = ({ disabled, onSubmit }: Props) => {
                                     }}
                                 />
                             </FormControl>
-
                             <FormMessage />
                         </FormItem>
                     )}
                 />
-
-                <div className="flex justify-end">
-                    <Button type="submit" disabled={disabled}>
-                        Create
-                    </Button>
-                </div>
             </form>
         </Form>
     );

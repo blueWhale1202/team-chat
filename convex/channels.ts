@@ -1,5 +1,6 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { ConvexError, v } from "convex/values";
+import { parsedName } from "../src/lib/utils";
 import { mutation, query } from "./_generated/server";
 
 export const get = query({
@@ -35,6 +36,38 @@ export const get = query({
     },
 });
 
+export const getById = query({
+    args: {
+        id: v.id("channels"),
+    },
+    handler: async (ctx, { id }) => {
+        const userId = await getAuthUserId(ctx);
+
+        if (!userId) {
+            return null;
+        }
+
+        const channel = await ctx.db.get(id);
+
+        if (!channel) {
+            return null;
+        }
+
+        const member = await ctx.db
+            .query("members")
+            .withIndex("by_user_id_workspace_id", (q) =>
+                q.eq("userId", userId).eq("workspaceId", channel.workspaceId)
+            )
+            .unique();
+
+        if (!member) {
+            return null;
+        }
+
+        return channel;
+    },
+});
+
 export const create = mutation({
     args: {
         name: v.string(),
@@ -66,5 +99,76 @@ export const create = mutation({
         });
 
         return channelId;
+    },
+});
+
+export const update = mutation({
+    args: {
+        name: v.string(),
+        id: v.id("channels"),
+    },
+    handler: async (ctx, { name, id }) => {
+        const userId = await getAuthUserId(ctx);
+
+        if (!userId) {
+            throw new ConvexError("Unauthorized");
+        }
+
+        const channel = await ctx.db.get(id);
+
+        if (!channel) {
+            throw new ConvexError("Channel not found");
+        }
+
+        const member = await ctx.db
+            .query("members")
+            .withIndex("by_user_id_workspace_id", (q) =>
+                q.eq("userId", userId).eq("workspaceId", channel.workspaceId)
+            )
+            .unique();
+
+        if (!member || member.role !== "admin") {
+            throw new ConvexError("Unauthorized");
+        }
+
+        await ctx.db.patch(id, {
+            name: parsedName(name),
+        });
+
+        return id;
+    },
+});
+
+export const remove = mutation({
+    args: {
+        id: v.id("channels"),
+    },
+    handler: async (ctx, { id }) => {
+        const userId = await getAuthUserId(ctx);
+
+        if (!userId) {
+            throw new ConvexError("Unauthorized");
+        }
+
+        const channel = await ctx.db.get(id);
+
+        if (!channel) {
+            throw new ConvexError("Channel not found");
+        }
+
+        const member = await ctx.db
+            .query("members")
+            .withIndex("by_user_id_workspace_id", (q) =>
+                q.eq("userId", userId).eq("workspaceId", channel.workspaceId)
+            )
+            .unique();
+
+        if (!member || member.role !== "admin") {
+            throw new ConvexError("Unauthorized");
+        }
+
+        await ctx.db.delete(id);
+
+        return id;
     },
 });

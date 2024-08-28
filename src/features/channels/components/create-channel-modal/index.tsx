@@ -11,7 +11,7 @@ import {
 import { CreateChannelForm, FormValues } from "./create-channel-form";
 
 import { useGetWorkspaceId } from "@/features/workspaces/hooks/use-workspace-id";
-import { useCreateChannel } from "../../hooks/ue-create-channel";
+import { useCreateChannel } from "../../hooks/use-create-channel";
 
 import { useCreateChannelModal } from "../../store/use-create-modal";
 

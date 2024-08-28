@@ -12,3 +12,7 @@ export const generateJoinCode = () => {
         charset: charset(Charset.NUMBERS),
     })[0];
 };
+
+export const parsedName = (name: string) => {
+    return name.replace(/\s+/g, "-").toLowerCase();
+};
