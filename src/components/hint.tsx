@@ -19,13 +19,13 @@ export const Hint = ({
     align = "center",
 }: Props) => {
     return (
-        <TooltipProvider>
+        <TooltipProvider delayDuration={50}>
             <Tooltip>
                 <TooltipTrigger asChild>{children}</TooltipTrigger>
                 <TooltipContent
                     side={side}
                     align={align}
-                    className="bg-black text-white border border-white/5"
+                    // className="bg-black text-white border border-white/5"
                 >
                     <p className="font-medium text-sm">{label}</p>
                 </TooltipContent>

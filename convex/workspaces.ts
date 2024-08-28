@@ -3,7 +3,7 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 import { ConvexError, v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 
-import { generate } from "referral-codes";
+import { generateJoinCode } from "../src/lib/utils";
 
 export const getList = query({
     args: {},
@@ -59,6 +59,33 @@ export const getById = query({
     },
 });
 
+export const getInfoById = query({
+    args: {
+        id: v.id("workspaces"),
+    },
+    handler: async (ctx, { id }) => {
+        const userId = await getAuthUserId(ctx);
+
+        if (!userId) {
+            throw new ConvexError("Unauthorized");
+        }
+
+        const member = await ctx.db
+            .query("members")
+            .withIndex("by_user_id_workspace_id", (q) =>
+                q.eq("userId", userId).eq("workspaceId", id)
+            )
+            .unique();
+
+        const workspace = await ctx.db.get(id);
+
+        return {
+            name: workspace?.name,
+            isMember: !!member,
+        };
+    },
+});
+
 export const create = mutation({
     args: {
         name: v.string(),
@@ -70,7 +97,7 @@ export const create = mutation({
             throw new ConvexError("Unauthorized");
         }
 
-        const [joinCode] = generate({ length: 8 });
+        const joinCode = generateJoinCode();
 
         const workspaceId = await ctx.db.insert("workspaces", {
             name,
@@ -82,6 +109,11 @@ export const create = mutation({
             userId,
             workspaceId,
             role: "admin",
+        });
+
+        await ctx.db.insert("channels", {
+            name: "general",
+            workspaceId: workspaceId,
         });
 
         return workspaceId;
@@ -155,5 +187,80 @@ export const remove = mutation({
         await ctx.db.delete(id);
 
         return id;
+    },
+});
+
+export const newJoinCode = mutation({
+    args: {
+        id: v.id("workspaces"),
+    },
+    handler: async (ctx, { id }) => {
+        const userId = await getAuthUserId(ctx);
+
+        if (!userId) {
+            throw new ConvexError("Unauthorized");
+        }
+
+        const member = await ctx.db
+            .query("members")
+            .withIndex("by_user_id_workspace_id", (q) =>
+                q.eq("userId", userId).eq("workspaceId", id)
+            )
+            .unique();
+
+        if (!member || member.role !== "admin") {
+            throw new ConvexError("Unauthorized");
+        }
+
+        const joinCode = generateJoinCode();
+
+        await ctx.db.patch(id, {
+            joinCode,
+        });
+
+        return id;
+    },
+});
+
+export const join = mutation({
+    args: {
+        workspaceId: v.id("workspaces"),
+        joinCode: v.string(),
+    },
+    handler: async (ctx, { workspaceId, joinCode }) => {
+        const userId = await getAuthUserId(ctx);
+
+        if (!userId) {
+            throw new ConvexError("Unauthorized");
+        }
+
+        const workspace = await ctx.db.get(workspaceId);
+
+        if (!workspace) {
+            throw new ConvexError("Workspace not found");
+        }
+
+        if (workspace.joinCode !== joinCode) {
+            throw new ConvexError("Invalid join code");
+        }
+
+        const existingMember = await ctx.db
+            .query("members")
+            .withIndex("by_user_id_workspace_id", (q) =>
+                q.eq("userId", userId).eq("workspaceId", workspaceId)
+            )
+            .unique();
+
+        if (existingMember) {
+            throw new ConvexError("Already a member of this workspace");
+        }
+
+        await ctx.db.insert("members", {
+            userId,
+            workspaceId,
+            role: "member",
+        });
+
+        return workspaceId;
     },
 });

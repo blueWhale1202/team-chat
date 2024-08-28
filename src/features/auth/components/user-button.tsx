@@ -39,13 +39,10 @@ export const UserButton = () => {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button
-                    variant="ghost"
-                    className=" relative size-10 rounded-full"
-                >
-                    <Avatar className="size-10 hover:opacity-75 transition">
+                <Button variant="ghost" className="rounded-md relative size-10">
+                    <Avatar className="rounded-md size-10 hover:opacity-75 transition">
                         <AvatarImage src={image} alt={name} />
-                        <AvatarFallback className="bg-sky-500 text-white">
+                        <AvatarFallback className="rounded-md bg-sky-500 text-white">
                             {name?.[0].toUpperCase()}
                         </AvatarFallback>
                     </Avatar>

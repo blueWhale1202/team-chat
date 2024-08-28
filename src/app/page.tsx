@@ -4,33 +4,31 @@ import { useEffect } from "react";
 
 import { useCreateWorkspaceModal } from "@/features/workspaces/store/use-create-modal";
 
-import { convexQuery } from "@convex-dev/react-query";
-import { useQuery } from "@tanstack/react-query";
+import { useGetWorkspaces } from "@/features/workspaces/hooks/use-get-workspaces";
 import { Loader } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { api } from "../../convex/_generated/api";
 
 export default function Home() {
     const [open, setOpen] = useCreateWorkspaceModal();
-    const { isLoading, data } = useQuery(
-        convexQuery(api.workspaces.getList, {})
-    );
+
+    const { isPending, data } = useGetWorkspaces();
 
     const router = useRouter();
 
     const workspaceId = data?.[0]?._id;
 
     useEffect(() => {
-        if (isLoading) {
+        if (isPending) {
             return;
         }
 
         if (workspaceId) {
+            setOpen(false);
             router.replace(`/workspaces/${workspaceId}`);
         } else if (!open) {
             setOpen(true);
         }
-    }, [workspaceId, isLoading, open, setOpen, router]);
+    }, [workspaceId, isPending, open, setOpen, router]);
 
     return (
         <div className="h-full flex items-center justify-center">

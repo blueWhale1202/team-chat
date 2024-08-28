@@ -15,51 +15,29 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
-import { useConvexMutation } from "@convex-dev/react-query";
-import { useMutation } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
-import { api } from "../../../../../convex/_generated/api";
-import { useCreateWorkspaceModal } from "../../store/use-create-modal";
-
 const formSchema = z.object({
-    name: z.string().min(1),
+    name: z.string().min(3).max(80),
 });
 
-type FormValues = z.infer<typeof formSchema>;
+export type FormValues = z.infer<typeof formSchema>;
 
 const defaultValues: FormValues = {
     name: "",
 };
 
-export const CreateWorkspaceForm = () => {
+type Props = {
+    disabled?: boolean;
+    onSubmit: (values: FormValues) => void;
+};
+
+export const CreateChannelForm = ({ disabled, onSubmit }: Props) => {
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
-        defaultValues,
+        defaultValues: defaultValues,
     });
 
-    const { mutate, isPending, error } = useMutation({
-        mutationFn: useConvexMutation(api.workspaces.create),
-    });
-
-    const router = useRouter();
-
-    const [_, setOpen] = useCreateWorkspaceModal();
-
-    const onSubmit = ({ name }: FormValues) => {
-        mutate(
-            { name },
-            {
-                onSuccess: (id) => {
-                    toast.success("Workspace created");
-
-                    form.reset(defaultValues);
-                    setOpen(false);
-
-                    router.push(`/workspaces/${id}`);
-                },
-            }
-        );
+    const parsedName = (name: string) => {
+        return name.replace(/\s+/g, "-").toLowerCase();
     };
 
     return (
@@ -70,25 +48,29 @@ export const CreateWorkspaceForm = () => {
                     name="name"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Workspace name</FormLabel>
+                            <FormLabel>Name</FormLabel>
                             <FormControl>
                                 <Input
-                                    placeholder="Workspace name e.g 'Work', 'Home', 'Personal'"
+                                    placeholder="e.g plan-budget"
                                     {...field}
+                                    onChange={(e) => {
+                                        field.onChange(
+                                            parsedName(e.target.value)
+                                        );
+                                    }}
                                 />
                             </FormControl>
+
                             <FormMessage />
                         </FormItem>
                     )}
                 />
 
                 <div className="flex justify-end">
-                    <Button type="submit" disabled={isPending}>
+                    <Button type="submit" disabled={disabled}>
                         Create
                     </Button>
                 </div>
-
-                {error && <p className="text-destructive">{error.message}</p>}
             </form>
         </Form>
     );

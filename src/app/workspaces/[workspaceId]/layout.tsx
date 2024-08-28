@@ -20,7 +20,7 @@ const WorkspaceLayout = ({ children }: Props) => {
                 <Sidebar />
 
                 <ResizablePanelGroup direction="horizontal">
-                    <ResizablePanel defaultSize={20} minSize={15}>
+                    <ResizablePanel defaultSize={20} minSize={20}>
                         <WorkspaceSidebar />
                     </ResizablePanel>
                     <ResizableHandle withHandle />

@@ -22,6 +22,7 @@ import { ChevronDown, Edit, ListFilter, SquarePen, Trash } from "lucide-react";
 import { Doc } from "../../../../convex/_generated/dataModel";
 import { useDeleteWorkspaceModal } from "../store/use-delete-modal";
 import { useEditWorkspaceModal } from "../store/use-edit-modal copy";
+import { useInviteModal } from "../store/use-invite-modal";
 
 type Props = {
     workspace: Doc<"workspaces">;
@@ -29,8 +30,9 @@ type Props = {
 };
 
 export const WorkspaceHeader = ({ workspace, isAdmin }: Props) => {
-    const [_openEditModal, setOpenEditModal] = useEditWorkspaceModal();
-    const [_openDeleteModal, setOpenDeleteModal] = useDeleteWorkspaceModal();
+    const setOpenEditModal = useEditWorkspaceModal()[1];
+    const setOpenDeleteModal = useDeleteWorkspaceModal()[1];
+    const setOpenInviteModal = useInviteModal()[1];
 
     return (
         <div className="h-[49px] flex items-center justify-between px-4 gap-0.5">
@@ -51,7 +53,7 @@ export const WorkspaceHeader = ({ workspace, isAdmin }: Props) => {
                             <p className="font-semibold line-clamp-1">
                                 {workspace.name}
                             </p>
-                            <p className="text-xs text-muted-foreground">
+                            <p className="text-xs text-muted-foreground font-normal">
                                 Active workspace
                             </p>
                         </div>
@@ -59,7 +61,9 @@ export const WorkspaceHeader = ({ workspace, isAdmin }: Props) => {
                     <DropdownMenuSeparator />
                     {isAdmin && (
                         <DropdownMenuGroup>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem
+                                onClick={() => setOpenInviteModal(true)}
+                            >
                                 <p className="line-clamp-1">
                                     Invite people to {workspace.name}
                                 </p>
