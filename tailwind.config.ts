@@ -78,6 +78,9 @@ const config = {
                 "caret-blink": "caret-blink 1.25s ease-out infinite",
             },
         },
+        fontFamily: {
+            lato: ["Lato", "sans-serif"],
+        },
     },
     plugins: [require("tailwindcss-animate")],
 } satisfies Config;
