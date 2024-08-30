@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Id } from "../../../../convex/_generated/dataModel";
 
 import { ChannelHero } from "./channel-hero";
@@ -11,6 +11,10 @@ import { Separator } from "@/components/ui/separator";
 
 import { useGetCurrentMember } from "@/features/members/hook/use-get-member";
 import { GetMessagesReturnType } from "../hooks/use-get-messages";
+
+import { useInView } from "react-intersection-observer";
+
+import { Loader } from "lucide-react";
 
 import { differenceInMinutes, format, isToday, isYesterday } from "date-fns";
 
@@ -50,6 +54,14 @@ export const MessageList = ({
 }: Props) => {
     const [editingId, setEditingId] = useState<Id<"messages"> | null>(null);
 
+    const { ref, inView } = useInView();
+
+    useEffect(() => {
+        if (inView) loadMore();
+    }, [inView, loadMore]);
+
+   
+
     const { data: currentMember } = useGetCurrentMember();
 
     if (!data) return null;
@@ -70,15 +82,8 @@ export const MessageList = ({
     );
 
     return (
-        <div className="flex-1 flex flex-col-reverse pb-4 overflow-y-auto">
-            <ScrollArea>
-                {variant === "channel" && (
-                    <ChannelHero
-                        name={channelName!}
-                        createTime={channelCreationTime!}
-                    />
-                )}
-
+        <ScrollArea className="flex-1 pb-4">
+            <div className="h-full flex flex-col-reverse">
                 {Object.entries(groupedMessages).map(([dateKey, messages]) => (
                     <div key={dateKey}>
                         <div className="text-center my-2 relative">
@@ -126,7 +131,25 @@ export const MessageList = ({
                         })}
                     </div>
                 ))}
-            </ScrollArea>
-        </div>
+
+                <div className="h-1" ref={ref}></div>
+
+                {isLoadingMore && (
+                    <div className="text-center my-2 relative">
+                        <Separator className="absolute top-1/2 left-0 right-0" />
+                        <span className="relative inline-block bg-white px-4 py-1 rounded-full text-xs border border-gray-300 shadow-sm">
+                            <Loader className="size-4 animate-spin" />
+                        </span>
+                    </div>
+                )}
+
+                {variant === "channel" && (
+                    <ChannelHero
+                        name={channelName!}
+                        createTime={channelCreationTime!}
+                    />
+                )}
+            </div>
+        </ScrollArea>
     );
 };
