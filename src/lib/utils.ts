@@ -16,3 +16,7 @@ export const generateJoinCode = () => {
 export const parsedName = (name: string) => {
     return name.replace(/\s+/g, "-").toLowerCase();
 };
+
+export const isEmptyText = (text: string) => {
+    return text.replace(/<(.|\n)*?/g, "").trim().length === 0;
+};

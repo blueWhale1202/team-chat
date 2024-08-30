@@ -2,6 +2,7 @@ import Quill, { QuillOptions } from "quill";
 import { Delta, Op } from "quill/core";
 import "quill/dist/quill.snow.css";
 
+import Image from "next/image";
 import {
     MutableRefObject,
     useEffect,
@@ -10,16 +11,16 @@ import {
     useState,
 } from "react";
 
-import { ALargeSmall, ImageIcon, SendHorizonal, Smile } from "lucide-react";
+import { EditorValues } from "@/interfaces";
+
+import { cn, isEmptyText } from "@/lib/utils";
+
+import { ALargeSmall, ImageIcon, SendHorizonal, Smile, X } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+
+import { EmojiPopover } from "./emoji-popover";
 import { Hint } from "./hint";
-import { Button } from "./ui/button";
-
-import { cn } from "@/lib/utils";
-
-type EditorValues = {
-    image: File | null;
-    body: string;
-};
 
 type Props = {
     variant?: "create" | "update";
@@ -41,6 +42,7 @@ const Editor = ({
     onCancel,
 }: Props) => {
     const [text, setText] = useState("");
+    const [image, setImage] = useState<File | null>(null);
     const [isToolbarVisible, setIsToolbarVisible] = useState(true);
 
     const containerRef = useRef<HTMLDivElement>(null);
@@ -50,6 +52,7 @@ const Editor = ({
     const placeholderRef = useRef(placeholder);
     const defaultValueRef = useRef(defaultValue);
     const disabledRef = useRef(disabled);
+    const imageElementRef = useRef<HTMLInputElement>(null);
 
     useLayoutEffect(() => {
         submitRef.current = onSubmit;
@@ -66,6 +69,7 @@ const Editor = ({
         const editorContainer = container.appendChild(
             container.ownerDocument.createElement("div")
         );
+
         const option: QuillOptions = {
             theme: "snow",
             placeholder: placeholderRef.current,
@@ -80,7 +84,20 @@ const Editor = ({
                         enter: {
                             key: "Enter",
                             handler: () => {
-                                console.log("Submit form");
+                                const text = quill.getText();
+                                const addedImage =
+                                    imageElementRef.current?.files?.[0] || null;
+
+                                const isEmpty =
+                                    !addedImage && isEmptyText(text);
+
+                                if (isEmpty) return;
+
+                                submitRef.current({
+                                    image: addedImage,
+                                    body: JSON.stringify(quill.getContents()),
+                                });
+
                                 return;
                             },
                         },
@@ -142,13 +159,65 @@ const Editor = ({
         }
     };
 
-    const isEmpty = text.replace(/<(.|\n)*?/g, "").trim().length === 0;
+    const isEmpty = !image && isEmptyText(text);
+
+    const onEmojiSelected = (value: string) => {
+        const quill = quillRef.current;
+
+        quill?.insertText(quill.getSelection()?.index || 0, value);
+    };
+
+    const onSend = () => {
+        onSubmit({
+            image: image ?? null,
+            body: JSON.stringify(quillRef.current?.getContents()),
+        });
+    };
 
     return (
         <div className="flex flex-col">
-            <div className="flex flex-col border border-slate-200 rounded-md overflow-hidden focus-within:shadow-sm focus-within:border-slate-300 transition bg-white">
+            <input
+                type="file"
+                accept="image/*"
+                ref={imageElementRef}
+                onChange={(e) => {
+                    if (e.target.files) {
+                        setImage(e.target.files[0]);
+                    }
+                }}
+                className="hidden"
+            />
+
+            <div
+                className={cn(
+                    "flex flex-col border border-slate-200 rounded-md overflow-hidden focus-within:shadow-sm focus-within:border-slate-300 transition bg-white",
+                    disabled && "opacity-50"
+                )}
+            >
                 <div ref={containerRef} className="h-full ql-custom"></div>
 
+                {!!image && (
+                    <div className="p-2">
+                        <div className="relative size-[62px] flex items-center justify-center group/image ">
+                            <button
+                                onClick={() => {
+                                    setImage(null);
+                                    imageElementRef.current!.value = "";
+                                }}
+                                className="hidden absolute -top-2.5 -right-2.5 z-[4]  group-hover/image:flex items-center justify-center size-6 rounded-full bg-muted-foreground/80 hover:bg-muted-foreground border-2 border-white"
+                            >
+                                <X className="size-3.5 text-muted" />
+                            </button>
+
+                            <Image
+                                src={URL.createObjectURL(image)}
+                                alt={image.name}
+                                fill
+                                className="rounded-lg overflow-hidden border object-cover"
+                            />
+                        </div>
+                    </div>
+                )}
                 <div className="flex px-2 pb-2 z-[5]">
                     <Hint
                         label={
@@ -167,7 +236,7 @@ const Editor = ({
                         </Button>
                     </Hint>
 
-                    <Hint label="Emoji">
+                    <EmojiPopover onEmojiSelected={onEmojiSelected}>
                         <Button
                             size="icon-sm"
                             variant="ghost"
@@ -175,7 +244,7 @@ const Editor = ({
                         >
                             <Smile className="size-4" />
                         </Button>
-                    </Hint>
+                    </EmojiPopover>
 
                     {variant === "create" && (
                         <Hint label="Image">
@@ -183,6 +252,7 @@ const Editor = ({
                                 size="icon-sm"
                                 variant="ghost"
                                 disabled={disabled}
+                                onClick={() => imageElementRef.current?.click()}
                             >
                                 <ImageIcon className="size-4" />
                             </Button>
@@ -199,6 +269,7 @@ const Editor = ({
                                     ? " bg-muted hover:bg-muted text-muted-foreground "
                                     : " bg-[#007a5a] hover:bg-[#007a5a]/80 text-white "
                             )}
+                            onClick={onSend}
                         >
                             <SendHorizonal className="size-4" />
                         </Button>
@@ -210,6 +281,7 @@ const Editor = ({
                                 size="sm"
                                 variant="outline"
                                 disabled={disabled}
+                                onClick={onCancel}
                             >
                                 Cancel
                             </Button>
@@ -219,6 +291,7 @@ const Editor = ({
                                 variant="outline"
                                 className=" bg-[#007a5a] hover:bg-[#007a5a]/80 "
                                 disabled={disabled || isEmpty}
+                                onClick={onSend}
                             >
                                 <span className="text-white">Save</span>
                             </Button>
@@ -227,7 +300,12 @@ const Editor = ({
                 </div>
             </div>
 
-            <div className="p-2 text-[10px] text-muted-foreground flex justify-end">
+            <div
+                className={cn(
+                    "p-2 text-[10px] text-muted-foreground flex justify-end opacity-0 transition",
+                    !isEmpty && "opacity-100"
+                )}
+            >
                 <p>
                     <strong>Shift + Enter</strong> to add new line
                 </p>
