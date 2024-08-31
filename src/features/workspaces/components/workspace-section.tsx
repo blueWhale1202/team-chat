@@ -10,6 +10,7 @@ import { SidebarItem } from "./sidebar-item";
 
 import { useChannelId } from "@/features/channels/hooks/use-channel-id";
 import { useCreateChannelModal } from "@/features/channels/store/use-create-modal";
+import { useMemberId } from "@/features/members/hook/use-member-id";
 
 import { useGetMembers } from "@/features/members/hook/use-get-members";
 import { useGetChannels } from "../../channels/hooks/use-get-channels";
@@ -20,6 +21,7 @@ type Props = {
 
 export const WorkspaceSection = ({ currentMember }: Props) => {
     const channelId = useChannelId();
+    const memberId = useMemberId();
 
     const channels = useGetChannels();
     const members = useGetMembers();
@@ -59,6 +61,7 @@ export const WorkspaceSection = ({ currentMember }: Props) => {
                         id={member._id}
                         label={member.user.name}
                         imageUrl={member.user.image}
+                        isActive={member._id === memberId}
                     />
                 ))}
             </SectionItem>

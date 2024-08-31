@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Id } from "../../../../convex/_generated/dataModel";
 
+import { ConversationHero } from "@/features/conversation/components/conversation-hero";
 import { ChannelHero } from "./channel-hero";
 import { Message } from "./message";
 
@@ -65,10 +66,10 @@ export const MessageList = ({
     const { ref, inView } = useInView();
 
     useEffect(() => {
-        if (inView) {
+        if (inView && canLoadMore) {
             loadMore();
         }
-    }, [inView, loadMore]);
+    }, [inView, canLoadMore, loadMore]);
 
     const { data: currentMember } = useGetCurrentMember();
 
@@ -95,7 +96,7 @@ export const MessageList = ({
                 <div ref={bottomRef} className="h-1"></div>
 
                 {Object.entries(groupedMessages).map(([dateKey, messages]) => (
-                    <div key={dateKey}>
+                    <div key={dateKey} className="space-y-2">
                         <div className="text-center my-2 relative">
                             <Separator className="absolute top-1/2 left-0 right-0" />
                             <span className="relative inline-block bg-white px-4 py-1 rounded-full text-xs border border-gray-300 shadow-sm">
@@ -134,6 +135,7 @@ export const MessageList = ({
                                     isCompact={isCompact}
                                     hideThreadButton={variant === "thread"}
                                     threadCount={message.threadCount}
+                                    threadName={message.threadName}
                                     threadImage={message.threadImage}
                                     threadTimestamp={message.threadTimestamp}
                                 />
@@ -151,11 +153,17 @@ export const MessageList = ({
                     </div>
                 )}
 
-                {variant === "channel" && (
-                    <ChannelHero
-                        name={channelName!}
-                        createTime={channelCreationTime!}
-                    />
+                {variant === "channel" &&
+                    channelName &&
+                    channelCreationTime && (
+                        <ChannelHero
+                            name={channelName}
+                            createTime={channelCreationTime}
+                        />
+                    )}
+
+                {variant === "conversation" && (
+                    <ConversationHero name={memberName} image={memberImage} />
                 )}
 
                 <div className="h-1" ref={ref}>

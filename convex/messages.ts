@@ -9,6 +9,7 @@ type Thread = {
     count: number;
     image: string | undefined;
     timestamp: number;
+    name: string;
 };
 
 const normalizeReactions = (reactions: Doc<"reactions">[]) => {
@@ -62,6 +63,7 @@ const populateThread = async (
             count: 0,
             image: undefined,
             timestamp: 0,
+            name: "",
         };
     }
 
@@ -73,6 +75,7 @@ const populateThread = async (
             count: messages.length,
             image: undefined,
             timestamp: 0,
+            name: "",
         };
     }
 
@@ -82,6 +85,7 @@ const populateThread = async (
         count: messages.length,
         image: lastMessageUser?.image,
         timestamp: lastMessage._creationTime,
+        name: lastMessageUser?.name || "",
     };
 };
 
@@ -239,6 +243,7 @@ export const get = query({
                             user,
                             reactions: normalizedReactions,
                             threadCount: thread.count,
+                            threadName: thread.name,
                             threadImage: thread.image,
                             threadTimestamp: thread.timestamp,
                         };

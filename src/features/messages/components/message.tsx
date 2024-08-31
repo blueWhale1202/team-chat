@@ -23,6 +23,7 @@ import { usePanel } from "@/hooks/use-panel";
 
 import { useDeleteMessage } from "../hooks/use-delete-message";
 import { useUpdateMessage } from "../hooks/use-update-message";
+import { ThreadBar } from "./thread-bar";
 
 const Render = dynamic(() => import("./render"), { ssr: false });
 const Editor = dynamic(() => import("@/components/editor"), { ssr: false });
@@ -48,6 +49,7 @@ type Props = {
     isCompact?: boolean;
     hideThreadButton?: boolean;
     threadCount?: number;
+    threadName?: string;
     threadImage?: string;
     threadTimestamp?: number;
 };
@@ -72,6 +74,7 @@ export const Message = ({
     setEditing,
     hideThreadButton,
     threadCount,
+    threadName,
     threadImage,
     threadTimestamp,
 }: Props) => {
@@ -190,6 +193,13 @@ export const Message = ({
                                     data={reactions}
                                     onChange={onReaction}
                                 />
+
+                                <ThreadBar
+                                    count={threadCount}
+                                    image={threadImage}
+                                    timestamp={threadTimestamp}
+                                    onClick={() => onOpenMessage(id)}
+                                />
                             </div>
                         )}
                     </div>
@@ -268,6 +278,13 @@ export const Message = ({
                             )}
 
                             <Reactions data={reactions} onChange={onReaction} />
+
+                            <ThreadBar
+                                count={threadCount}
+                                image={threadImage}
+                                timestamp={threadTimestamp}
+                                onClick={() => onOpenMessage(id)}
+                            />
                         </div>
                     )}
                 </div>
