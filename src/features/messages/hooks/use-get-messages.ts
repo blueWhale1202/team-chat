@@ -1,7 +1,7 @@
 import { usePaginatedQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 
-const BATCH_SIZE = 3;
+const BATCH_SIZE = 20;
 
 type Props = Omit<typeof api.messages.get._args, "paginationOpts">;
 export type GetMessagesReturnType =

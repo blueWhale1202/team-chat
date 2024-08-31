@@ -13,11 +13,14 @@ import { Toolbar } from "./toolbar";
 import { cn } from "@/lib/utils";
 import { format, isToday, isYesterday } from "date-fns";
 
-import { useConfirm } from "@/hooks/use-confirm";
 import { toast } from "sonner";
 
 import { Reactions } from "@/features/reactions/components/reactions";
+
 import { useToggleReaction } from "@/features/reactions/hooks/use-toggle-reaction";
+import { useConfirm } from "@/hooks/use-confirm";
+import { usePanel } from "@/hooks/use-panel";
+
 import { useDeleteMessage } from "../hooks/use-delete-message";
 import { useUpdateMessage } from "../hooks/use-update-message";
 
@@ -72,6 +75,8 @@ export const Message = ({
     threadImage,
     threadTimestamp,
 }: Props) => {
+    const { parentMessageId, onClose, onOpenMessage } = usePanel();
+
     const [ConfirmDialog, confirm] = useConfirm(
         "Delete message",
         "Are you sure you want to delete this message? This cannot be undone"
@@ -115,7 +120,11 @@ export const Message = ({
         removeMessage.mutate(
             { id },
             {
-                onSuccess: () => {
+                onSuccess: (messageId) => {
+                    if (messageId === parentMessageId) {
+                        onClose();
+                    }
+
                     toast.success("Message deleted");
                 },
                 onError: () => {
@@ -191,7 +200,7 @@ export const Message = ({
                             isPending={isPending}
                             onEdit={() => setEditing(id)}
                             onDelete={onDelete}
-                            onThread={() => {}}
+                            onThread={() => onOpenMessage(id)}
                             onReaction={onReaction}
                             hideThreadButton={hideThreadButton}
                         />
@@ -269,7 +278,7 @@ export const Message = ({
                         isPending={isPending}
                         onEdit={() => setEditing(id)}
                         onDelete={onDelete}
-                        onThread={() => {}}
+                        onThread={() => onOpenMessage(id)}
                         onReaction={onReaction}
                         hideThreadButton={hideThreadButton}
                     />

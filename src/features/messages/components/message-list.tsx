@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Id } from "../../../../convex/_generated/dataModel";
 
 import { ChannelHero } from "./channel-hero";
@@ -17,6 +17,7 @@ import { useInView } from "react-intersection-observer";
 import { Loader } from "lucide-react";
 
 import { differenceInMinutes, format, isToday, isYesterday } from "date-fns";
+import { useTriggerScroll } from "../store/use-trigger-scroll";
 
 type Props = {
     memberName?: string;
@@ -54,13 +55,20 @@ export const MessageList = ({
 }: Props) => {
     const [editingId, setEditingId] = useState<Id<"messages"> | null>(null);
 
+    const bottomRef = useRef<HTMLDivElement>(null);
+    const [triggerScroll] = useTriggerScroll();
+
+    useEffect(() => {
+        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, [triggerScroll]);
+
     const { ref, inView } = useInView();
 
     useEffect(() => {
-        if (inView) loadMore();
+        if (inView) {
+            loadMore();
+        }
     }, [inView, loadMore]);
-
-   
 
     const { data: currentMember } = useGetCurrentMember();
 
@@ -84,6 +92,8 @@ export const MessageList = ({
     return (
         <ScrollArea className="flex-1 pb-4">
             <div className="h-full flex flex-col-reverse">
+                <div ref={bottomRef} className="h-1"></div>
+
                 {Object.entries(groupedMessages).map(([dateKey, messages]) => (
                     <div key={dateKey}>
                         <div className="text-center my-2 relative">
@@ -132,8 +142,6 @@ export const MessageList = ({
                     </div>
                 ))}
 
-                <div className="h-1" ref={ref}></div>
-
                 {isLoadingMore && (
                     <div className="text-center my-2 relative">
                         <Separator className="absolute top-1/2 left-0 right-0" />
@@ -149,6 +157,10 @@ export const MessageList = ({
                         createTime={channelCreationTime!}
                     />
                 )}
+
+                <div className="h-1" ref={ref}>
+                    <p className="sr-only">Load more message</p>
+                </div>
             </div>
         </ScrollArea>
     );

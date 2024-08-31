@@ -16,6 +16,7 @@ import { useCreateMessage } from "@/features/messages/hooks/use-create-message";
 import { useGenerateUploadUrl } from "@/features/upload/hooks/use-generate-url";
 import { useUploadFile } from "@/features/upload/hooks/use-upload-image";
 
+import { useTriggerScroll } from "@/features/messages/store/use-trigger-scroll";
 import { toast } from "sonner";
 
 const Editor = dynamic(() => import("@/components/editor"), { ssr: false });
@@ -32,6 +33,8 @@ type Props = {
 export const ChatInput = ({ placeholder }: Props) => {
     const editorRef = useRef<Quill>(null);
     const [isPending, setIsPending] = useState(false);
+
+    const [_triggerScroll, setTriggerScroll] = useTriggerScroll();
 
     //  To reset state of editor
     const [editorKey, setEditorKey] = useState(0);
@@ -68,6 +71,8 @@ export const ChatInput = ({ placeholder }: Props) => {
             await createMessage.mutateAsync(message);
 
             setEditorKey((prev) => prev + 1);
+
+            setTriggerScroll((prev) => prev + 1);
         } catch (error) {
             const errorMessage =
                 error instanceof ConvexError

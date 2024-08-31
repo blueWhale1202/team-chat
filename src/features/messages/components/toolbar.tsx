@@ -4,7 +4,7 @@ import { EmojiPopover } from "@/components/emoji-popover";
 import { Hint } from "@/components/hint";
 import { Button } from "@/components/ui/button";
 
-import { MessageSquare, Pencil, Smile, Trash } from "lucide-react";
+import { MessageSquareText, Pencil, Smile, Trash } from "lucide-react";
 
 type Props = {
     isAuthor: boolean;
@@ -45,7 +45,7 @@ export const Toolbar = ({
                             disabled={isPending}
                             onClick={onThread}
                         >
-                            <MessageSquare className="size-4" />
+                            <MessageSquareText className="size-4" />
                         </Button>
                     </Hint>
                 )}
