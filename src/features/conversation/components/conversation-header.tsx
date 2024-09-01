@@ -1,6 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { ChevronDown } from "lucide-react";
+import { SquareArrowOutUpRight } from "lucide-react";
 
 type Props = {
     memberName?: string;
@@ -24,7 +24,7 @@ export const ConversationHeader = ({
                 </Avatar>
 
                 <span className="truncate">{memberName}</span>
-                <ChevronDown className="size-4 ml-2" />
+                <SquareArrowOutUpRight className="size-4 ml-2" />
             </Button>
         </div>
     );

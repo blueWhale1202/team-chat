@@ -32,7 +32,7 @@ export const WorkspaceSection = ({ currentMember }: Props) => {
         currentMember.role === "admin" ? () => setOpen(true) : undefined;
 
     return (
-        <Accordion type="multiple">
+        <Accordion type="multiple" defaultValue={["channels", "messages"]}>
             <SectionItem
                 value="channels"
                 label="Channels"

@@ -91,10 +91,10 @@ export const Thread = ({ messageId, onClose }: Props) => {
     const { ref, inView } = useInView();
 
     useEffect(() => {
-        if (inView) {
+        if (inView && canLoadMore) {
             loadMore();
         }
-    }, [inView, loadMore]);
+    }, [inView, canLoadMore, loadMore]);
 
     if (message.isPending || status === "LoadingFirstPage") {
         return (

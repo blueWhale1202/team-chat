@@ -183,6 +183,7 @@ const Editor = ({
                 onChange={(e) => {
                     if (e.target.files) {
                         setImage(e.target.files[0]);
+                        e.target.blur();
                     }
                 }}
                 className="hidden"

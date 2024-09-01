@@ -1,13 +1,18 @@
 "use client";
 
-import { useGetMemberById } from "@/features/members/hook/use-get-member-by-id";
-import { useMemberId } from "@/features/members/hook/use-member-id";
-import { MessageList } from "@/features/messages/components/message-list";
-import { useGetMessages } from "@/features/messages/hooks/use-get-messages";
-import { Loader } from "lucide-react";
 import { Id } from "../../../../convex/_generated/dataModel";
+
+import { MessageList } from "@/features/messages/components/message-list";
 import { ChatInput } from "./chat-input";
 import { ConversationHeader } from "./conversation-header";
+
+import { Loader } from "lucide-react";
+
+import { useMemberId } from "@/features/members/hook/use-member-id";
+import { usePanel } from "@/hooks/use-panel";
+
+import { useGetMemberById } from "@/features/members/hook/use-get-member-by-id";
+import { useGetMessages } from "@/features/messages/hooks/use-get-messages";
 
 type Props = {
     id: Id<"conversations">;
@@ -15,6 +20,7 @@ type Props = {
 
 export const Conversation = ({ id }: Props) => {
     const memberId = useMemberId();
+    const { onOpenProfile } = usePanel();
 
     const { isPending, data: member } = useGetMemberById(memberId);
     const { results, status, loadMore } = useGetMessages({
@@ -34,7 +40,7 @@ export const Conversation = ({ id }: Props) => {
             <ConversationHeader
                 memberImage={member?.user.image}
                 memberName={member?.user.name}
-                onClick={() => {}}
+                onClick={() => onOpenProfile(id)}
             />
 
             <MessageList

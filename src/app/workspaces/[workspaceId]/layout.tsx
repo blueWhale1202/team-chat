@@ -10,6 +10,7 @@ import {
 
 import { Loader } from "lucide-react";
 
+import { Profile } from "@/features/members/components/profile";
 import { Thread } from "@/features/messages/components/thread";
 import { Sidebar } from "@/features/workspaces/components/sidebar";
 import { Toolbar } from "@/features/workspaces/components/toolbar";
@@ -22,9 +23,9 @@ type Props = {
 };
 
 const WorkspaceLayout = ({ children }: Props) => {
-    const { parentMessageId, onClose } = usePanel();
+    const { parentMessageId, profileMemberId, onClose } = usePanel();
 
-    const showPanel = !!parentMessageId;
+    const showPanel = !!parentMessageId || !!profileMemberId;
 
     return (
         <div className="h-full">
@@ -53,6 +54,13 @@ const WorkspaceLayout = ({ children }: Props) => {
                                     <Thread
                                         messageId={
                                             parentMessageId as Id<"messages">
+                                        }
+                                        onClose={onClose}
+                                    />
+                                ) : profileMemberId ? (
+                                    <Profile
+                                        memberId={
+                                            profileMemberId as Id<"members">
                                         }
                                         onClose={onClose}
                                     />

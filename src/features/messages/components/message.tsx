@@ -7,6 +7,7 @@ import { Doc, Id } from "../../../../convex/_generated/dataModel";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 import { Hint } from "@/components/hint";
+import { ThreadBar } from "./thread-bar";
 import { Thumbnail } from "./thumbnail";
 import { Toolbar } from "./toolbar";
 
@@ -23,7 +24,6 @@ import { usePanel } from "@/hooks/use-panel";
 
 import { useDeleteMessage } from "../hooks/use-delete-message";
 import { useUpdateMessage } from "../hooks/use-update-message";
-import { ThreadBar } from "./thread-bar";
 
 const Render = dynamic(() => import("./render"), { ssr: false });
 const Editor = dynamic(() => import("@/components/editor"), { ssr: false });
@@ -78,7 +78,13 @@ export const Message = ({
     threadImage,
     threadTimestamp,
 }: Props) => {
-    const { parentMessageId, onClose, onOpenMessage } = usePanel();
+    const {
+        parentMessageId,
+        profileMemberId,
+        onOpenMessage,
+        onOpenProfile,
+        onClose,
+    } = usePanel();
 
     const [ConfirmDialog, confirm] = useConfirm(
         "Delete message",
@@ -232,7 +238,7 @@ export const Message = ({
                 )}
             >
                 <div className="flex items-start gap-2">
-                    <button>
+                    <button onClick={() => onOpenProfile(memberId)}>
                         <Avatar>
                             <AvatarImage src={authorImage} alt={authorName} />
                             <AvatarFallback>
@@ -254,14 +260,17 @@ export const Message = ({
                     ) : (
                         <div className="flex flex-col w-full overflow-hidden">
                             <div className="text-sm">
-                                <button className="mr-2 font-bold text-primary hover:underline">
+                                <button
+                                    className="mr-2 font-bold text-primary hover:underline"
+                                    onClick={() => onOpenProfile(memberId)}
+                                >
                                     {authorName}
                                 </button>
 
                                 <Hint
                                     label={formatFullTime(new Date(createAt))}
                                 >
-                                    <button className="text-xs text-muted-foreground hover:underline">
+                                    <button className="text-xs text-muted-foreground ">
                                         {format(createAt, "hh:mm a")}
                                     </button>
                                 </Hint>
